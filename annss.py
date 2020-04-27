@@ -70,7 +70,7 @@ print(classification_report(y_test, y_pred))
 
 # Evaluating the ANN
 from keras.wrappers.scikit_learn import KerasClassifier
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_score, GridSearchCV
 
 def build_classifier():
     classifier = Sequential()
@@ -83,4 +83,17 @@ def build_classifier():
 classifier = KerasClassifier(build_fn = build_classifier, batch_size = 10, epochs = 100)
 accuracies = cross_val_score(estimator = classifier, X = X_train, y = y_train, cv = 10, n_jobs = 1)
 
+
+# Tuning the ANN
+classifier = KerasClassifier(build_fn = build_classifier)
+parameters = {'batch_size': [25, 32],
+             'nb_epoch': [100,500],
+             'optimizer': ['adam', 'rmsprop']}
+grid_search = GridSearchCV(estimator = classifier,
+                           param_grid = parameters,
+                           scoring = 'accuracy'
+                           cv = 10)
+grid_search = grid_search.fit(X_train, y_train)
+best_parameters = grid_search.best_params_
+best_accuracy = grid_search.best_score_
 
